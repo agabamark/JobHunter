@@ -1,18 +1,25 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "api/index.py",
-      "use": "@vercel/python"
+  "functions": {
+    "api/signup.py": {
+      "memory": 1024,
+      "maxDuration": 10
+    },
+    "api/status.py": {
+      "memory": 1024,
+      "maxDuration": 10
     }
-  ],
+  },
   "routes": [
     {
-      "src": "/api/(.*)",
-      "dest": "api/index.py"
+      "src": "/api/signup",
+      "methods": ["POST", "OPTIONS"],
+      "dest": "/api/signup.py"
+    },
+    {
+      "src": "/api/status",
+      "methods": ["GET", "OPTIONS"],
+      "dest": "/api/status.py"
     }
-  ],
-  "env": {
-    "PYTHONPATH": "."
-  }
+  ]
 }
