@@ -12,6 +12,10 @@
   },
   "routes": [
     {
+      "src": "/favicon.ico",
+      "dest": "/public/favicon.ico"
+    },
+    {
       "src": "/api/signup",
       "methods": ["POST", "OPTIONS"],
       "dest": "/api/signup.py"
