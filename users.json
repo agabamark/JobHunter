@@ -1,0 +1,18 @@
+{
+  "user@example.com": {
+    "email": "user@example.com",
+    "job_keywords": "python developer, remote work, software engineer",
+    "country": "Uganda",
+    "signup_date": "2025-06-15T10:30:00",
+    "trial_expires": "2025-06-18T10:30:00",
+    "subscription_status": "trial"
+  },
+  "john@company.com": {
+    "email": "john@company.com",
+    "job_keywords": "data scientist, machine learning, AI",
+    "country": "United States",
+    "signup_date": "2025-06-10T15:45:00",
+    "trial_expires": "2025-06-13T15:45:00",
+    "subscription_status": "trial"
+  }
+}
