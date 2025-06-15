@@ -1,25 +1,25 @@
-# utils.py
+from pymongo import MongoClient
 from datetime import datetime, timedelta
-import json
 import os
 
-USERS_FILE = 'users.json'
+# Get MongoDB connection string from environment variable
+MONGODB_URI = os.getenv('MONGODB_URI')
+client = MongoClient(MONGODB_URI)
+db = client.jobhunter
+users_collection = db.users
 
 def save_user(new_user):
-    users = load_users()
-    users[new_user['email']] = new_user
-    with open(USERS_FILE, 'w') as f:
-        json.dump(users, f, indent=2)
+    users_collection.update_one(
+        {'email': new_user['email']},
+        {'$set': new_user},
+        upsert=True
+    )
 
 def get_user(email):
-    users = load_users()
-    return users.get(email)
+    return users_collection.find_one({'email': email})
 
 def load_users():
-    if not os.path.exists(USERS_FILE):
-        return {}
-    with open(USERS_FILE) as f:
-        return json.load(f)
+    return {user['email']: user for user in users_collection.find()}
 
 def is_trial_active(user):
     signup_date = datetime.fromisoformat(user['signup_date'])
@@ -45,4 +45,3 @@ def get_payment_options(country):
         "method": "Credit Card",
         "link": "https://payment.jobhunterpro.com/stripe"
     }
-    
