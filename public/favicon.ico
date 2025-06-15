@@ -1,0 +1,13 @@
+from PIL import Image, ImageDraw, ImageFont
+import io
+
+# Create a new image with a transparent background
+img = Image.new('RGBA', (32, 32), (255, 255, 255, 0))
+draw = ImageDraw.Draw(img)
+
+# Draw a simple briefcase icon
+draw.rectangle([8, 8, 24, 24], outline=(0, 123, 255), fill=(0, 123, 255))
+draw.rectangle([14, 6, 18, 8], outline=(0, 123, 255), fill=(0, 123, 255))
+
+# Save as ICO
+img.save('public/favicon.ico', format='ICO')
