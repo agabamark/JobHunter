@@ -1,16 +1,29 @@
 import type { Metadata } from 'next'
+import { Inter } from 'next/font/google'
+import './globals.css'
+
+const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'JobHunter',
-  description: 'Automated job hunting assistant',
+  title: 'JobHunter - Automated Job Search Assistant',
+  description: 'Automate your job search with AI-powered tools and personalized job matching',
   icons: {
     icon: '/favicon.ico',
-    apple: '/apple-icon.png',
-    shortcut: '/favicon.ico',
   },
-  manifest: '/manifest.json',
-  themeColor: '#007bff',
-  viewport: 'width=device-width, initial-scale=1',
 }
 
-// ... rest of the layout component
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  return (
+    <html lang="en">
+      <body className={inter.className}>
+        <main className="min-h-screen">
+          {children}
+        </main>
+      </body>
+    </html>
+  )
+}
