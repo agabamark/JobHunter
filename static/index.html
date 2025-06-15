@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>JobHunterPro API Tester</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 600px; margin: 2rem auto; }
+    label, input, button, textarea { display: block; margin: 0.5rem 0; width: 100%; }
+    textarea { height: 100px; }
+    .response { white-space: pre-wrap; background: #f0f0f0; padding: 1rem; margin-top: 1rem; }
+  </style>
+</head>
+<body>
+  <h1>JobHunterPro API Tester</h1>
+
+  <section>
+    <h2>Signup</h2>
+    <label>Email: <input id="signup-email" type="email" /></label>
+    <label>Job Keywords (comma separated): <input id="signup-keywords" /></label>
+    <label>Country: <input id="signup-country" /></label>
+    <button onclick="signup()">Signup</button>
+    <div id="signup-response" class="response"></div>
+  </section>
+
+  <section>
+    <h2>Check Trial Status</h2>
+    <label>Email: <input id="status-email" type="email" /></label>
+    <button onclick="checkStatus()">Check Status</button>
+    <div id="status-response" class="response"></div>
+  </section>
+
+  <section>
+    <h2>Run Automation</h2>
+    <label>Email: <input id="run-email" type="email" /></label>
+    <button onclick="runBot()">Run Bot</button>
+    <div id="run-response" class="response"></div>
+  </section>
+
+  <section>
+    <h2>Upgrade Options</h2>
+    <label>Email: <input id="upgrade-email" type="email" /></label>
+    <button onclick="getUpgrade()">Get Upgrade Options</button>
+    <div id="upgrade-response" class="response"></div>
+  </section>
+
+  <script>
+    const baseUrl = ''; // leave empty if served from same origin, or set your deployed URL
+
+    async function signup() {
+      const email = document.getElementById('signup-email').value;
+      const keywords = document.getElementById('signup-keywords').value.split(',').map(k => k.trim());
+      const country = document.getElementById('signup-country').value;
+      const res = await fetch(baseUrl + '/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, job_keywords: keywords, country })
+      });
+      const data = await res.json();
+      document.getElementById('signup-response').textContent = JSON.stringify(data, null, 2);
+    }
+
+    async function checkStatus() {
+      const email = document.getElementById('status-email').value;
+      const res = await fetch(baseUrl + '/status?email=' + encodeURIComponent(email));
+      const data = await res.json();
+      document.getElementById('status-response').textContent = JSON.stringify(data, null, 2);
+    }
+
+    async function runBot() {
+      const email = document.getElementById('run-email').value;
+      const res = await fetch(baseUrl + '/run?email=' + encodeURIComponent(email));
+      const data = await res.json();
+      document.getElementById('run-response').textContent = JSON.stringify(data, null, 2);
+    }
+
+    async function getUpgrade() {
+      const email = document.getElementById('upgrade-email').value;
+      const res = await fetch(baseUrl + '/upgrade?email=' + encodeURIComponent(email));
+      const data = await res.json();
+      document.getElementById('upgrade-response').textContent = JSON.stringify(data, null, 2);
+    }
+  </script>
+</body>
+</html>
