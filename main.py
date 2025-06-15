@@ -1,10 +1,15 @@
 # main.py
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 from datetime import datetime, timedelta
 import utils
 import json
 
 app = Flask(__name__)
+
+
+@app.route('/')
+def index():
+    return send_from_directory('static', 'index.html')
 
 @app.route('/signup', methods=['POST'])
 def signup():
