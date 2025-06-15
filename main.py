@@ -2,111 +2,122 @@ from flask import Flask, request, jsonify
 from datetime import datetime, timedelta
 import utils
 import json
-from pymongo import MongoClient
 import os
 from dotenv import load_dotenv
 
 # Load environment variables
 load_dotenv()
 
-# Initialize Flask app
 app = Flask(__name__)
 
-# Initialize MongoDB connection
-MONGODB_URI = os.getenv('MONGODB_URI')
-if not MONGODB_URI:
-    raise ValueError("No MONGODB_URI found in environment variables")
-
-client = MongoClient(MONGODB_URI)
-db = client.jobhunter
-users_collection = db.users
-
-@app.route('/api/signup', methods=['POST'])
+@app.route('/signup', methods=['POST'])
 def signup():
     try:
         data = request.json
         required_fields = ['email', 'job_keywords', 'country']
         
-        # Validate required fields
-        if not all(field in data for field in required_fields):
-            return jsonify({"error": "Missing required fields"}), 400
+        # Input validation
+        if not data:
+            return jsonify({"error": "No data provided"}), 400
             
-        # Create user document
+        if not all(field in data for field in required_fields):
+            missing_fields = [field for field in required_fields if field not in data]
+            return jsonify({"error": f"Missing required fields: {', '.join(missing_fields)}"}), 400
+            
+        # Data preparation
         user = {
             "email": data['email'],
             "job_keywords": data['job_keywords'],
             "country": data['country'],
             "signup_date": datetime.utcnow().isoformat(),
             "trial_active": True,
-            "trial_expires": (datetime.utcnow() + timedelta(days=3)).isoformat()
+            "subscription_status": "trial"
         }
         
-        # Save user to MongoDB
+        # Try to save user
         try:
-            users_collection.update_one(
-                {'email': user['email']},
-                {'$set': user},
-                upsert=True
-            )
+            utils.save_user(user)
         except Exception as db_error:
-            print(f"Database error: {str(db_error)}")
-            return jsonify({"error": "Database operation failed"}), 500
-        
+            print(f"Database error: {str(db_error)}")  # For logging
+            return jsonify({"error": "Failed to save user data"}), 500
+            
         return jsonify({
             "message": "Signup successful",
-            "trial_end": user['trial_expires']
+            "trial_end": utils.get_trial_end(user)
         }), 201
     
     except Exception as e:
-        print(f"Server error: {str(e)}")
+        print(f"Server error: {str(e)}")  # For logging
         return jsonify({"error": "Internal server error"}), 500
 
-@app.route('/api/run', methods=['GET'])
+@app.route('/run')
 def run_bot():
     try:
         email = request.args.get('email')
         if not email:
             return jsonify({"error": "Email parameter is required"}), 400
             
-        user = users_collection.find_one({'email': email})
+        user = utils.get_user(email)
         
         if not user:
             return jsonify({"error": "User not found"}), 404
         
-        trial_end = datetime.fromisoformat(user['trial_expires'])
-        if datetime.utcnow() < trial_end:
+        if utils.is_trial_active(user):
             return jsonify({"message": "Bot executed successfully"}), 200
         
         return jsonify({"error": "Trial expired. Please upgrade to continue."}), 403
-    
     except Exception as e:
-        print(f"Server error: {str(e)}")
+        print(f"Server error: {str(e)}")  # For logging
         return jsonify({"error": "Internal server error"}), 500
 
-@app.route('/api/status', methods=['GET'])
+@app.route('/upgrade')
+def upgrade():
+    try:
+        email = request.args.get('email')
+        if not email:
+            return jsonify({"error": "Email parameter is required"}), 400
+            
+        user = utils.get_user(email)
+        
+        if not user:
+            return jsonify({"error": "User not found"}), 404
+        
+        payment_options = utils.get_payment_options(user['country'])
+        return jsonify(payment_options), 200
+    except Exception as e:
+        print(f"Server error: {str(e)}")  # For logging
+        return jsonify({"error": "Internal server error"}), 500
+
+@app.route('/status')
 def trial_status():
     try:
         email = request.args.get('email')
         if not email:
             return jsonify({"error": "Email parameter is required"}), 400
             
-        user = users_collection.find_one({'email': email})
+        user = utils.get_user(email)
         
         if not user:
             return jsonify({"error": "User not found"}), 404
         
-        trial_end = datetime.fromisoformat(user['trial_expires'])
-        is_active = datetime.utcnow() < trial_end
-        
         return jsonify({
-            "trial_active": is_active,
-            "trial_end": user['trial_expires']
+            "trial_active": utils.is_trial_active(user),
+            "trial_end": utils.get_trial_end(user)
         }), 200
-    
     except Exception as e:
-        print(f"Server error: {str(e)}")
+        print(f"Server error: {str(e)}")  # For logging
         return jsonify({"error": "Internal server error"}), 500
 
-# For local development only
+# Add health check endpoint
+@app.route('/health')
+def health_check():
+    try:
+        # Test database connection
+        utils.test_db_connection()
+        return jsonify({"status": "healthy"}), 200
+    except Exception as e:
+        return jsonify({"status": "unhealthy", "error": str(e)}), 500
+
+# For local development
 if __name__ == '__main__':
     app.run(port=5000, debug=True)
