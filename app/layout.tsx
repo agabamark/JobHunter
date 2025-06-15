@@ -5,20 +5,12 @@ export const metadata: Metadata = {
   description: 'Automated job hunting assistant',
   icons: {
     icon: '/favicon.ico',
+    apple: '/apple-icon.png',
+    shortcut: '/favicon.ico',
   },
+  manifest: '/manifest.json',
+  themeColor: '#007bff',
+  viewport: 'width=device-width, initial-scale=1',
 }
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
-  return (
-    <html lang="en">
-      <head>
-        <link rel="icon" href="/favicon.ico" sizes="any" />
-      </head>
-      <body>{children}</body>
-    </html>
-  )
-}
+// ... rest of the layout component
