@@ -1,29 +1,40 @@
 {
   "version": 2,
+  "env": {
+    "PYTHONPATH": ".",
+    "MONGODB_URI": "@mongodb_uri"
+  },
   "functions": {
-    "api/signup.py": {
-      "memory": 1024,
-      "maxDuration": 10
-    },
-    "api/status.py": {
+    "api/*.py": {
       "memory": 1024,
       "maxDuration": 10
     }
   },
   "routes": [
     {
-      "src": "/favicon.ico",
-      "dest": "/public/favicon.ico"
+      "src": "/api/health",
+      "methods": ["GET"],
+      "dest": "api/health.py"
     },
     {
       "src": "/api/signup",
       "methods": ["POST", "OPTIONS"],
-      "dest": "/api/signup.py"
+      "dest": "api/signup.py"
     },
     {
       "src": "/api/status",
       "methods": ["GET", "OPTIONS"],
-      "dest": "/api/status.py"
+      "dest": "api/status.py"
+    },
+    {
+      "src": "/api/run",
+      "methods": ["GET", "OPTIONS"],
+      "dest": "api/run.py"
+    },
+    {
+      "src": "/api/upgrade",
+      "methods": ["GET", "OPTIONS"],
+      "dest": "api/upgrade.py"
     }
   ]
 }
