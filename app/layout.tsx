@@ -1,10 +1,11 @@
-import { SpeedInsights } from "@vercel/speed-insights/next"
-import type { Metadata } from "next"
-import "./globals.css"
+import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: "JobHunter",
-  description: "Find your next job opportunity",
+  title: 'JobHunter',
+  description: 'Automated job hunting assistant',
+  icons: {
+    icon: '/favicon.ico',
+  },
 }
 
 export default function RootLayout({
@@ -14,10 +15,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>
-        {children}
-        <SpeedInsights />
-      </body>
+      <head>
+        <link rel="icon" href="/favicon.ico" sizes="any" />
+      </head>
+      <body>{children}</body>
     </html>
   )
 }
